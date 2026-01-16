@@ -111,8 +111,11 @@ def parse_httpx_security_headers(headers: Dict[str, str]) -> Dict[str, Any]:
         else:
             missing.append({"header": header, "description": description})
     
+    # Security score: 100 = all headers present (best), 0 = no headers (worst)
+    security_score = int((len(present) / len(security_headers)) * 100) if security_headers else 0
+    
     return {
         "missing_headers": missing,
         "present_headers": present,
-        "security_score": int((len(missing) / len(security_headers)) * 100)
+        "security_score": security_score
     }

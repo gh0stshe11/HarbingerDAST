@@ -36,7 +36,9 @@ def install_tool(tool_name: str, quiet: bool = False) -> bool:
     """
     if tool_name not in TOOL_INSTALL_COMMANDS:
         if not quiet:
-            print(f"[!] Unknown tool: {tool_name}", file=sys.stderr)
+            supported_tools = ", ".join(TOOL_INSTALL_COMMANDS.keys())
+            print(f"[!] Unknown tool: '{tool_name}'", file=sys.stderr)
+            print(f"[!] Supported tools: {supported_tools}", file=sys.stderr)
         return False
     
     # Check if Go is installed

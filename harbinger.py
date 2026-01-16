@@ -112,9 +112,19 @@ class HarbingerDAST:
                         "recommendation": "Disable directory listing in web server configuration"
                     })
                 
-                # Check for sensitive paths
+                # Check for sensitive paths - use more precise matching
                 path_lower = ep.path.lower()
-                if any(keyword in path_lower for keyword in ["admin", "login", "api", "dashboard"]):
+                path_parts = [p for p in path_lower.split('/') if p]  # Split and filter empty
+                sensitive_keywords = ["admin", "login", "api", "dashboard", "console", "portal"]
+                
+                # Check if any path segment exactly matches or starts with sensitive keywords
+                is_sensitive = any(
+                    part == keyword or part.startswith(keyword + '-') or part.startswith(keyword + '.')
+                    for part in path_parts
+                    for keyword in sensitive_keywords
+                )
+                
+                if is_sensitive:
                     findings.append({
                         "type": "Sensitive Endpoint",
                         "severity": "Medium",
@@ -123,8 +133,14 @@ class HarbingerDAST:
                         "recommendation": "Ensure proper authentication and security headers"
                     })
                 
-                # Check for backup/config files
-                if any(ext in path_lower for ext in [".bak", ".backup", ".old", ".config", ".conf"]):
+                # Check for backup/config files - use more precise matching
+                filename = path_lower.split('/')[-1] if '/' in path_lower else path_lower
+                backup_extensions = [".bak", ".backup", ".old", ".config", ".conf", ".swp", ".save"]
+                
+                # Check if filename ends with backup extensions
+                is_backup = any(filename.endswith(ext) for ext in backup_extensions)
+                
+                if is_backup:
                     findings.append({
                         "type": "Exposed File",
                         "severity": "Critical",
