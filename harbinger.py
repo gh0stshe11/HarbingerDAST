@@ -125,19 +125,16 @@ class HarbingerDAST:
                 path_parts = set(p for p in path_lower.split('/') if p)  # Split and filter empty
                 sensitive_keywords = {"admin", "login", "api", "dashboard", "console", "portal"}
                 
-                # Check if any path segment matches sensitive keywords
-                is_sensitive = False
-                for part in path_parts:
+                # Check if any path segment matches sensitive keywords using generator
+                def is_sensitive_part(part: str) -> bool:
+                    """Check if a path part is sensitive"""
                     if part in sensitive_keywords:
-                        is_sensitive = True
-                        break
+                        return True
                     # Check for variations like admin-panel, api.v1
-                    for keyword in sensitive_keywords:
-                        if part.startswith(keyword + '-') or part.startswith(keyword + '.'):
-                            is_sensitive = True
-                            break
-                    if is_sensitive:
-                        break
+                    return any(part.startswith(keyword + '-') or part.startswith(keyword + '.')
+                              for keyword in sensitive_keywords)
+                
+                is_sensitive = any(is_sensitive_part(part) for part in path_parts)
                 
                 if is_sensitive:
                     findings.append({
@@ -148,8 +145,7 @@ class HarbingerDAST:
                         "recommendation": "Ensure proper authentication and security headers"
                     })
                 
-                # Check for backup/config files - use os.path for better compatibility
-                from pathlib import Path
+                # Check for backup/config files - use Path for better compatibility
                 filename = Path(ep.path).name.lower()
                 backup_extensions = [".bak", ".backup", ".old", ".config", ".conf", ".swp", ".save"]
                 
