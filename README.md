@@ -6,20 +6,39 @@
 
 HarbingerDAST is a comprehensive DAST (Dynamic Application Security Testing) tool that combines multiple open-source security scanners to identify vulnerabilities in web applications. It generates both **technical reports** for security professionals and **ELI5 (Explain Like I'm 5)** reports for non-technical stakeholders.
 
+**Enhanced with webReaper features** for advanced URL discovery, crawling, and comprehensive security analysis.
+
 ## Features
 
 - 🔍 **Multi-Tool Scanning**: Integrates with popular open-source security tools
+  - **httpx** HTTP probing and metadata collection (optional, requires Go)
+  - **katana** web crawler for URL discovery (optional, requires Go)
   - OWASP ZAP baseline scanning (optional, requires Docker)
   - Nikto web server scanner (optional, requires Nikto)
   - Built-in security header checks
+  
+- 🕷️ **URL Discovery & Crawling**: Automatically discover endpoints with katana integration
+  - Configurable crawl depth
+  - Rate limiting and concurrency control
+  - Smart scope management
+
+- 🔒 **Enhanced Security Checks**:
+  - Missing security headers detection
+  - Directory listing vulnerabilities
+  - Exposed backup/configuration files
+  - Server error detection (5xx)
+  - Sensitive endpoint identification
+  - API endpoint analysis
   
 - 📊 **Dual Reporting**:
   - **ELI5 Report**: Simple, non-technical explanations for managers and stakeholders
   - **Technical Report**: Detailed vulnerability information for security professionals
   
-- 🎯 **Severity Classification**: Automatically categorizes findings as High, Medium, or Low priority
+- 🎯 **Severity Classification**: Automatically categorizes findings as Critical, High, Medium, or Low priority
 
 - 💾 **Multiple Output Formats**: Generates TXT and JSON reports for easy integration
+
+- 🚦 **CI/CD Integration**: Exit codes for automated pipelines (0=safe, 1=issues found, 2=error)
 
 ## Installation
 
@@ -27,6 +46,7 @@ HarbingerDAST is a comprehensive DAST (Dynamic Application Security Testing) too
 
 - Python 3.7 or higher
 - pip (Python package manager)
+- **Go 1.19+** (for optional httpx and katana tools)
 
 ### Basic Installation
 
@@ -45,6 +65,16 @@ chmod +x harbinger.py
 ### Optional Tools (for extended scanning)
 
 To enable all scanning features, install these optional tools:
+
+**httpx (for HTTP probing):**
+```bash
+go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+```
+
+**katana (for web crawling):**
+```bash
+go install github.com/projectdiscovery/katana/cmd/katana@latest
+```
 
 **Docker (for OWASP ZAP):**
 ```bash
@@ -66,6 +96,12 @@ brew install nikto
 # Or download from: https://github.com/sullo/nikto
 ```
 
+**Note:** Make sure Go binaries are in your PATH:
+```bash
+export PATH=$PATH:$HOME/go/bin
+# Add to ~/.bashrc or ~/.zshrc to make permanent
+```
+
 ## Usage
 
 ### Basic Scan
@@ -74,6 +110,22 @@ Scan a website with basic security checks:
 
 ```bash
 python harbinger.py -u https://example.com
+```
+
+### Enhanced Scan with URL Discovery
+
+Use httpx and katana for enhanced discovery (if installed):
+
+```bash
+python harbinger.py -u https://example.com
+```
+
+### Disable URL Discovery
+
+Skip URL discovery and use only basic checks:
+
+```bash
+python harbinger.py -u https://example.com --no-discovery
 ```
 
 ### Custom Output Directory
@@ -87,13 +139,44 @@ python harbinger.py -u https://example.com -o my_security_reports
 ### Command Line Options
 
 ```
-usage: harbinger.py [-h] -u URL [-o OUTPUT_DIR]
+usage: harbinger.py [-h] -u URL [-o OUTPUT_DIR] [--no-discovery]
 
 Options:
   -h, --help            Show this help message and exit
   -u URL, --url URL     Target URL to scan (required)
   -o OUTPUT_DIR, --output-dir OUTPUT_DIR
                         Output directory for reports (default: reports)
+  --no-discovery        Disable URL discovery and crawling (use basic checks only)
+```
+
+### Exit Codes
+
+HarbingerDAST uses exit codes for CI/CD integration:
+
+- **0**: No critical or high severity issues found (safe)
+- **1**: Critical or high severity issues found (action required)
+- **2**: Runtime error occurred (check logs)
+
+Example usage in CI/CD:
+
+```bash
+#!/bin/bash
+python harbinger.py -u https://staging.example.com -o scan-results/
+
+case $? in
+  0)
+    echo "✓ Security scan passed: No critical issues"
+    ;;
+  1)
+    echo "✗ ALERT: Critical security issues detected!"
+    echo "Review: scan-results/technical_report_*.txt"
+    exit 1
+    ;;
+  2)
+    echo "✗ ERROR: Scan failed to complete"
+    exit 1
+    ;;
+esac
 ```
 
 ## Output Reports
@@ -164,10 +247,21 @@ HarbingerDAST currently performs the following security checks:
   - Strict-Transport-Security (HTTPS enforcement)
   - Content-Security-Policy (XSS protection)
   - X-XSS-Protection (browser XSS filter)
+  - Referrer-Policy (referrer information control)
   
 - ✅ Information disclosure detection:
   - Server header exposure
   - Version information leaks
+
+### Enhanced Checks (with httpx/katana)
+
+- ✅ Directory listing detection
+- ✅ Exposed backup files (.bak, .backup, .old)
+- ✅ Exposed configuration files (.config, .conf)
+- ✅ Server error detection (5xx status codes)
+- ✅ Sensitive endpoint identification (admin, login, dashboard, api)
+- ✅ URL discovery via web crawling
+- ✅ HTTP metadata analysis
 
 ### Extended Checks (Require Optional Tools)
 
@@ -198,6 +292,24 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - [ ] Implement continuous scanning mode
 - [ ] Add webhook notifications
 - [ ] Create web interface
+- [x] **Integrate webReaper's WebSentinel features**
+  - [x] httpx integration for HTTP probing
+  - [x] katana integration for web crawling
+  - [x] Enhanced security checks
+  - [x] Dependency management
+  - [x] Exit codes for CI/CD
+
+## Integration with webReaper
+
+This version of HarbingerDAST integrates key features from the [webReaper](https://github.com/gh0stshe11/webreaper) project:
+
+- **URL Discovery**: Uses katana for intelligent web crawling
+- **HTTP Probing**: Uses httpx for fast endpoint probing and metadata collection
+- **Enhanced Security Analysis**: Detects directory listings, exposed files, server errors, and more
+- **Dependency Management**: Automated checking and guidance for external tools
+- **CI/CD Support**: Exit codes for pipeline integration
+
+For advanced reconnaissance and endpoint ranking features, see the full [webReaper project](https://github.com/gh0stshe11/webreaper).
 
 ## Limitations
 
