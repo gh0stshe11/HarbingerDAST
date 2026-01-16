@@ -1,0 +1,49 @@
+{
+  "target": "http://localhost:8080",
+  "timestamp": "20260116_131015",
+  "vulnerabilities": [
+    {
+      "type": "Missing Security Header",
+      "severity": "Medium",
+      "header": "X-Frame-Options",
+      "description": "Prevents clickjacking attacks",
+      "recommendation": "Add X-Frame-Options header to improve security"
+    },
+    {
+      "type": "Missing Security Header",
+      "severity": "Medium",
+      "header": "X-Content-Type-Options",
+      "description": "Prevents MIME type sniffing",
+      "recommendation": "Add X-Content-Type-Options header to improve security"
+    },
+    {
+      "type": "Missing Security Header",
+      "severity": "Medium",
+      "header": "Strict-Transport-Security",
+      "description": "Enforces HTTPS connections",
+      "recommendation": "Add Strict-Transport-Security header to improve security"
+    },
+    {
+      "type": "Missing Security Header",
+      "severity": "Medium",
+      "header": "Content-Security-Policy",
+      "description": "Prevents XSS and injection attacks",
+      "recommendation": "Add Content-Security-Policy header to improve security"
+    },
+    {
+      "type": "Missing Security Header",
+      "severity": "Medium",
+      "header": "X-XSS-Protection",
+      "description": "Enables browser XSS filtering",
+      "recommendation": "Add X-XSS-Protection header to improve security"
+    },
+    {
+      "type": "Information Disclosure",
+      "severity": "Low",
+      "header": "Server",
+      "value": "BaseHTTP/0.6 Python/3.12.3, TestServer/1.0",
+      "description": "Server version information disclosed",
+      "recommendation": "Remove or obfuscate Server header"
+    }
+  ]
+}

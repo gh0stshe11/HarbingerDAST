@@ -1,0 +1,45 @@
+{
+  "scan_config": {
+    "timeout": 300,
+    "max_redirects": 5,
+    "user_agent": "HarbingerDAST/1.0"
+  },
+  "enabled_scanners": {
+    "basic_checks": true,
+    "zap_baseline": false,
+    "nikto": false
+  },
+  "security_headers": {
+    "X-Frame-Options": {
+      "required": true,
+      "severity": "Medium",
+      "description": "Prevents clickjacking attacks"
+    },
+    "X-Content-Type-Options": {
+      "required": true,
+      "severity": "Medium",
+      "description": "Prevents MIME type sniffing"
+    },
+    "Strict-Transport-Security": {
+      "required": true,
+      "severity": "Medium",
+      "description": "Enforces HTTPS connections"
+    },
+    "Content-Security-Policy": {
+      "required": true,
+      "severity": "Medium",
+      "description": "Prevents XSS and injection attacks"
+    },
+    "X-XSS-Protection": {
+      "required": false,
+      "severity": "Low",
+      "description": "Enables browser XSS filtering"
+    }
+  },
+  "reporting": {
+    "include_timestamp": true,
+    "generate_json": true,
+    "generate_eli5": true,
+    "generate_technical": true
+  }
+}
