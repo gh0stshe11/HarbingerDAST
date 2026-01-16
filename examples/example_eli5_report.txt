@@ -1,0 +1,37 @@
+================================================================================
+HarbingerDAST Security Report (Simple Explanation)
+================================================================================
+
+Website Scanned: http://localhost:8080
+Scan Date: 2026-01-16 13:10:15
+
+================================================================================
+
+⚠️  Found 6 potential security issues
+
+Let me explain what we found in simple terms:
+
+
+🟡 MODERATE ISSUES (Should fix soon):
+   Found 5 medium-level problems
+
+   1. Missing protection against clickjacking (users tricked into clicking)
+   2. Missing protection against fake file types
+   3. Not forcing secure (HTTPS) connections
+   4. Missing rules about what code can run on your site
+   5. Your website is missing a safety feature
+
+🟢 MINOR ISSUES (Nice to fix):
+   Found 1 small problems
+
+
+================================================================================
+
+What should you do?
+--------------------------------------------------------------------------------
+1. Read the detailed technical report for specific fixes
+2. Fix high-priority issues first (the red ones)
+3. Work through medium and low priority issues
+4. Run another scan after making fixes to verify
+
+================================================================================
