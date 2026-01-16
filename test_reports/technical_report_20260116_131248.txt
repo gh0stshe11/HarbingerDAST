@@ -1,0 +1,80 @@
+================================================================================
+HarbingerDAST Technical Security Report
+================================================================================
+
+Target URL: http://localhost:8080
+Scan Timestamp: 2026-01-16 13:12:48
+Report ID: 20260116_131248
+
+================================================================================
+
+EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+Total Findings: 6
+  - High Severity: 0
+  - Medium Severity: 5
+  - Low Severity: 1
+
+================================================================================
+DETAILED FINDINGS
+================================================================================
+
+MEDIUM SEVERITY FINDINGS (5)
+--------------------------------------------------------------------------------
+
+[1] Missing Security Header
+    Severity: Medium
+    Description: Prevents clickjacking attacks
+    Missing Header: X-Frame-Options
+    Recommendation: Add X-Frame-Options header to improve security
+
+
+[2] Missing Security Header
+    Severity: Medium
+    Description: Prevents MIME type sniffing
+    Missing Header: X-Content-Type-Options
+    Recommendation: Add X-Content-Type-Options header to improve security
+
+
+[3] Missing Security Header
+    Severity: Medium
+    Description: Enforces HTTPS connections
+    Missing Header: Strict-Transport-Security
+    Recommendation: Add Strict-Transport-Security header to improve security
+
+
+[4] Missing Security Header
+    Severity: Medium
+    Description: Prevents XSS and injection attacks
+    Missing Header: Content-Security-Policy
+    Recommendation: Add Content-Security-Policy header to improve security
+
+
+[5] Missing Security Header
+    Severity: Medium
+    Description: Enables browser XSS filtering
+    Missing Header: X-XSS-Protection
+    Recommendation: Add X-XSS-Protection header to improve security
+
+
+LOW SEVERITY FINDINGS (1)
+--------------------------------------------------------------------------------
+
+[1] Information Disclosure
+    Severity: Low
+    Description: Server version information disclosed
+    Missing Header: Server
+    Current Value: BaseHTTP/0.6 Python/3.12.3, TestServer/1.0
+    Recommendation: Remove or obfuscate Server header
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+1. Address all high severity findings immediately
+2. Implement missing security headers
+3. Remove unnecessary information disclosure
+4. Regular security scanning schedule recommended
+5. Consider implementing a Web Application Firewall (WAF)
+
+================================================================================

@@ -162,7 +162,7 @@ class HarbingerDAST:
             data = json.loads(output)
             if isinstance(data, dict) and "vulnerabilities" in data:
                 findings = data["vulnerabilities"]
-        except:
+        except (json.JSONDecodeError, ValueError):
             # Fallback to text parsing
             for line in output.split('\n'):
                 if line.strip() and not line.startswith('+'):
@@ -204,19 +204,22 @@ class HarbingerDAST:
             
             if high:
                 report.append("\n🔴 IMPORTANT ISSUES (Fix these first!):")
-                report.append(f"   Found {len(high)} serious problems\n")
+                problem_word = "problem" if len(high) == 1 else "problems"
+                report.append(f"   Found {len(high)} serious {problem_word}\n")
                 for i, vuln in enumerate(high[:5], 1):  # Show top 5
                     report.append(f"   {i}. {self._simplify_vulnerability(vuln)}")
             
             if medium:
                 report.append("\n🟡 MODERATE ISSUES (Should fix soon):")
-                report.append(f"   Found {len(medium)} medium-level problems\n")
+                problem_word = "problem" if len(medium) == 1 else "problems"
+                report.append(f"   Found {len(medium)} medium-level {problem_word}\n")
                 for i, vuln in enumerate(medium[:5], 1):  # Show top 5
                     report.append(f"   {i}. {self._simplify_vulnerability(vuln)}")
             
             if low:
                 report.append("\n🟢 MINOR ISSUES (Nice to fix):")
-                report.append(f"   Found {len(low)} small problems\n")
+                problem_word = "problem" if len(low) == 1 else "problems"
+                report.append(f"   Found {len(low)} small {problem_word}\n")
         
         report.append("\n" + "=" * 80)
         report.append("\nWhat should you do?")
@@ -278,7 +281,8 @@ class HarbingerDAST:
         severity_counts = {"High": 0, "Medium": 0, "Low": 0}
         for vuln in self.vulnerabilities:
             severity = vuln.get("severity", "Low")
-            severity_counts[severity] = severity_counts.get(severity, 0) + 1
+            if severity in severity_counts:
+                severity_counts[severity] += 1
         
         report.append(f"  - High Severity: {severity_counts.get('High', 0)}")
         report.append(f"  - Medium Severity: {severity_counts.get('Medium', 0)}")
