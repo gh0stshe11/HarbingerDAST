@@ -43,6 +43,14 @@ class HarbingerDAST:
         # Check available tools
         self.available_tools = self._check_tools()
     
+    def _get_fallback_urls(self) -> List[str]:
+        """Get fallback URL list (just the target URL)
+        
+        Returns:
+            List containing only the target URL
+        """
+        return [self.target_url]
+    
     def _check_tools(self) -> Dict[str, bool]:
         """Check availability of external tools"""
         tools = {
@@ -112,17 +120,24 @@ class HarbingerDAST:
                         "recommendation": "Disable directory listing in web server configuration"
                     })
                 
-                # Check for sensitive paths - use more precise matching
+                # Check for sensitive paths - use efficient set-based matching
                 path_lower = ep.path.lower()
-                path_parts = [p for p in path_lower.split('/') if p]  # Split and filter empty
-                sensitive_keywords = ["admin", "login", "api", "dashboard", "console", "portal"]
+                path_parts = set(p for p in path_lower.split('/') if p)  # Split and filter empty
+                sensitive_keywords = {"admin", "login", "api", "dashboard", "console", "portal"}
                 
-                # Check if any path segment exactly matches or starts with sensitive keywords
-                is_sensitive = any(
-                    part == keyword or part.startswith(keyword + '-') or part.startswith(keyword + '.')
-                    for part in path_parts
-                    for keyword in sensitive_keywords
-                )
+                # Check if any path segment matches sensitive keywords
+                is_sensitive = False
+                for part in path_parts:
+                    if part in sensitive_keywords:
+                        is_sensitive = True
+                        break
+                    # Check for variations like admin-panel, api.v1
+                    for keyword in sensitive_keywords:
+                        if part.startswith(keyword + '-') or part.startswith(keyword + '.'):
+                            is_sensitive = True
+                            break
+                    if is_sensitive:
+                        break
                 
                 if is_sensitive:
                     findings.append({
@@ -133,8 +148,9 @@ class HarbingerDAST:
                         "recommendation": "Ensure proper authentication and security headers"
                     })
                 
-                # Check for backup/config files - use more precise matching
-                filename = path_lower.split('/')[-1] if '/' in path_lower else path_lower
+                # Check for backup/config files - use os.path for better compatibility
+                from pathlib import Path
+                filename = Path(ep.path).name.lower()
                 backup_extensions = [".bak", ".backup", ".old", ".config", ".conf", ".swp", ".save"]
                 
                 # Check if filename ends with backup extensions
@@ -172,7 +188,7 @@ class HarbingerDAST:
         """Run katana web crawler for URL discovery"""
         if not self.available_tools.get("katana"):
             print("[i] katana not available - skipping URL discovery")
-            return [self.target_url]
+            return self._get_fallback_urls()
         
         print(f"[*] Running katana crawler (depth={max_depth})...")
         
@@ -194,17 +210,17 @@ class HarbingerDAST:
                     urls.append(line)
             
             print(f"[+] katana discovered {len(urls)} URL(s)")
-            return urls if urls else [self.target_url]
+            return urls if urls else self._get_fallback_urls()
             
         except subprocess.TimeoutExpired:
             print("[!] katana crawl timed out")
-            return [self.target_url]
+            return self._get_fallback_urls()
         except FileNotFoundError:
             print("[!] katana not found")
-            return [self.target_url]
+            return self._get_fallback_urls()
         except Exception as e:
             print(f"[!] Error running katana: {e}")
-            return [self.target_url]
+            return self._get_fallback_urls()
     
     def run_zap_baseline(self) -> Dict[str, Any]:
         """Run OWASP ZAP baseline scan"""

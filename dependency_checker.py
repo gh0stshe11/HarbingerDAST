@@ -11,6 +11,9 @@ TOOL_INSTALL_COMMANDS = {
     "katana": "go install github.com/projectdiscovery/katana/cmd/katana@latest",
 }
 
+# Cached list of supported tools for error messages
+SUPPORTED_TOOLS_STR = ", ".join(TOOL_INSTALL_COMMANDS.keys())
+
 
 def check_tool(tool_name: str) -> bool:
     """Check if a tool is available in PATH.
@@ -36,9 +39,8 @@ def install_tool(tool_name: str, quiet: bool = False) -> bool:
     """
     if tool_name not in TOOL_INSTALL_COMMANDS:
         if not quiet:
-            supported_tools = ", ".join(TOOL_INSTALL_COMMANDS.keys())
             print(f"[!] Unknown tool: '{tool_name}'", file=sys.stderr)
-            print(f"[!] Supported tools: {supported_tools}", file=sys.stderr)
+            print(f"[!] Supported tools: {SUPPORTED_TOOLS_STR}", file=sys.stderr)
         return False
     
     # Check if Go is installed
