@@ -27,6 +27,9 @@ env/
 
 # Reports directory (generated at runtime)
 reports/
+*_reports/
+**/reports/
+**/*_reports/
 
 # IDE
 .vscode/
